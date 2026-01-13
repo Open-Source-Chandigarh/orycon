@@ -7,7 +7,7 @@
     "build": "tsc -b",
     "start": "bun --env-file=.env.example dist/index.js",
     "start:prod": "bun --env-file=.env.example dist/index.js",
-    "dev": "bun run src/index.ts"
+    "dev": "bun --env-file=.env run src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

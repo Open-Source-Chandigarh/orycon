@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config({ path: "../.env.example" });
-
 import express, {
   type NextFunction,
   type Request,
