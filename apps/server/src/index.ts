@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import hpp from "hpp";
-// import "dotenv/config";
 import passport from "passport";
 import "./utils/passport";
 import type { Express } from "express";
