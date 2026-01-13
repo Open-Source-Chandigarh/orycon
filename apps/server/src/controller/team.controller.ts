@@ -1,5 +1,4 @@
-import { Role } from "@prisma/client";
-import prisma from "@osc/prisma";
+import prisma, { Role } from "@osc/prisma";
 
 import type { Request, Response } from "express";
 import type { Team } from "../utils/types";
@@ -126,7 +125,7 @@ class teamController {
       const { id } = req.params; // team id from URL or if you want to search it by name then please mention in comments
       const { name, description } = req.body;
 
-      if (!id) {
+      if (!id || Array.isArray(id)) {
         return res
           .status(400)
           .json({ error: true, message: "Team Id is required", data: null });
