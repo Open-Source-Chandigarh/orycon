@@ -14,11 +14,9 @@ class EventDocsController {
       });
 
       if (existingDoc) {
-        return res
-          .status(409)
-          .json({
-            message: "EventDocumentation with this name already exists",
-          });
+        return res.status(409).json({
+          message: "EventDocumentation with this name already exists",
+        });
       }
       const createdDoc = await prisma.eventDocumentation.create({
         data,
@@ -120,23 +118,19 @@ class EventDocsController {
         where: { id },
       });
       if (!doc)
-        return res
-          .status(404)
-          .json({
-            message: "Invalid id: Event for deletion does not exist in the db",
-          });
+        return res.status(404).json({
+          message: "Invalid id: Event for deletion does not exist in the db",
+        });
 
       const deletedEventDoc = await prisma.eventDocumentation.delete({
         where: { id },
       });
 
-      res
-        .status(204)
-        .json({
-          message: "EventDocumentation deleted successfully",
-          data: deletedEventDoc,
-          error: null,
-        });
+      res.status(204).json({
+        message: "EventDocumentation deleted successfully",
+        data: deletedEventDoc,
+        error: null,
+      });
     } catch (error) {
       console.error("Error deleting EventDocumentation:", error);
       res.status(500).json({ message: "Internal server error" });
