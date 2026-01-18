@@ -3,12 +3,18 @@ import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import userController from "../controller/user.controller";
 
-passport.serializeUser(function (user, done) {
-  done(null, user);
+passport.serializeUser(function (user: any, done) {
+  done(null, user.id); // store only user id in session
 });
 
-passport.deserializeUser(function (user: any, done: any) {
-  done(null, user);
+// user.id type is set to string
+passport.deserializeUser(async function (id: string, done: any) {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    done(null, user); // fetch full user from db
+  } catch (error) {
+    done(error, null);
+  }
 });
 
 passport.use(
@@ -40,21 +46,24 @@ passport.use(
         },
       });
 
+      let user;
       if (dbUser) {
-        const userLogin = await userController.handleOAuthLogin({
+        await userController.handleOAuthLogin({
           id: dbUser.id,
           email: dbUser.email,
           rollNumber: dbUser.rollnumber || "",
         });
+        user = dbUser;
       } else {
         if (!name) {
           name = username;
         }
-        await userController.handleOAuthSignup(name, email);
+        const newUser = await userController.handleOAuthSignup(name, email);
         console.log("user created");
+        user = newUser;
       }
 
-      return done(null, profile);
+      return done(null, user);
     },
   ),
 );

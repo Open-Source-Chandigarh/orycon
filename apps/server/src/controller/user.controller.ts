@@ -131,10 +131,12 @@ class userController {
     }
   }
   /**
-   * Login VIA google/github OAuth for now i dont think this
-   * will be of any use
+   * login via google/github OAuth
+   * Returns user data for session management
    */
-  async handleOAuthLogin(data: jwtInformation) {}
+  async handleOAuthLogin(data: jwtInformation) {
+    return data;
+  }
 
   async updateUserDetails(req: Request, res: Response) {
     try {
