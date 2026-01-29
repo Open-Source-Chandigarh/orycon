@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Post-merge: Generating Prisma client..."
+
+bun run generate:db

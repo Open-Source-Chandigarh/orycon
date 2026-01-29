@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Pre-push: Checking Next.js build..."
+
+bun run --cwd apps/client build --no-lint
