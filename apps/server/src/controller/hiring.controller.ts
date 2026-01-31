@@ -10,7 +10,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 class HiringController {
-  /* ================= APPLICANT ================= */
+  // APPLICANT
 
   async applyForHiring(req: AuthenticatedRequest, res: Response) {
     try {
@@ -18,8 +18,11 @@ class HiringController {
       const { eventId, role, team, motivation } = req.body;
 
       if (!userId) throw new Error("User not authenticated");
+
       if (!eventId || !role || !motivation) {
-        return res.status(400).json({ message: "Missing required fields" });
+        return res.status(400).json({ 
+        message: "Missing required fields"
+      });
       }
 
       const event = await prisma.event.findUnique({
@@ -76,13 +79,15 @@ class HiringController {
     }
   }
 
-  /* ================= ADMIN ================= */
+  // ADMIN
 
   async getApplicants(req: Request, res: Response) {
     try {
       const { eventId, status, team } = req.query;
       if (!eventId) {
-        return res.status(400).json({ message: "eventId is required" });
+        return res.status(400).json({ 
+          message: "eventId is required" 
+        });
       }
 
       const applicants = await prisma.eventParticipant.findMany({
@@ -106,7 +111,9 @@ class HiringController {
     const status = req.body.status as string;
 
     if (!id) {
-      return res.status(400).json({ message: "id is required" });
+      return res.status(400).json({ 
+        message: "id is required" 
+      });
     }
 
     if (!["Selected", "Maybe", "Rejected"].includes(status)) {
@@ -130,7 +137,9 @@ class HiringController {
     const teamId = req.body.teamId as string;
 
     if (!userId || !teamId) {
-      return res.status(400).json({ message: "userId and teamId required" });
+      return res.status(400).json({ 
+        message: "userId and teamId required" 
+      });
     }
 
     const teamMember = await prisma.teamMember.create({
