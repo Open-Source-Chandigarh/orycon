@@ -10,7 +10,7 @@ teamRouter.post("/create", (req, res) =>
 teamRouter.post("/remove", (req, res) =>
   teamController.removeTeam(req as AuthenticatedRequest, res),
 );
-teamRouter.post("/update/:id", (req, res) =>
+teamRouter.post("/update/by-id/:id", (req, res) =>
   teamController.updateTeam(req as AuthenticatedRequest, res),
 );
 

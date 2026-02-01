@@ -3,17 +3,19 @@ import { Router } from "express";
 
 export const teamMemberRouter = Router();
 
-teamMemberRouter.post("/create", teamMemberController.createTeamMember);
-teamMemberRouter.post(
-  "/remove/:memberId",
-  teamMemberController.removeTeamMember,
+teamMemberRouter.post("/create", (req, res) => 
+  teamMemberController.createTeamMember(req, res),
 );
 teamMemberRouter.post(
-  "/update/:memberId",
-  teamMemberController.updateTeamMember,
+  "/remove/by-member-id/:memberId", (req, res) => 
+  teamMemberController.removeTeamMember(req, res),
+);
+teamMemberRouter.post(
+  "/update/by-member-id/:memberId", (req, res) => 
+  teamMemberController.updateTeamMember(req, res),
 );
 
 teamMemberRouter.get(
-  "/team/:teamId",
-  teamMemberController.getTeamMembersByTeam,
+  "/by-team-id/:teamId", (req, res) => 
+  teamMemberController.getTeamMembersByTeam(req, res),
 );

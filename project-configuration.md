@@ -190,7 +190,26 @@ osc-internal-tool-hacktoberFest/
 ### MongoDB
 
 1. Ensure MongoDB is running on `mongodb://127.0.0.1:27017`
-2. Database will be created automatically on first connection
+2. Prisma uses MongoDB transactions, which require MongoDB to run as a **replica set**
+
+### Local Development (Docker)
+
+For local Docker-based setup, MongoDB runs as a **single-node replica set**.
+
+Start services:
+
+```bash
+docker compose up -d
+```
+
+After MongoDB starts, initialize the replica set once:
+
+```bash
+docker exec -it mongodb mongosh
+rs.initiate()
+```
+
+This step is required only once per machine.
 
 ## Verification
 

@@ -14,16 +14,16 @@ eventPostRouter.get("/", (req, res) =>
 );
 
 // READ (By ID)
-eventPostRouter.get("/:id", (req, res) =>
+eventPostRouter.get("/by-id/:id", (req, res) =>
   eventPostController.getEventPostById(req, res),
 );
 
 // UPDATE
-eventPostRouter.put("/:id", (req, res) =>
+eventPostRouter.put("/by-id/:id", (req, res) =>
   eventPostController.updateEventPost(req, res),
 );
 
 // DELETE
-eventPostRouter.delete("/:id", (req, res) =>
+eventPostRouter.delete("/by-id/:id", (req, res) =>
   eventPostController.deleteEventPost(req, res),
 );

@@ -11,12 +11,12 @@ import { hiringRouter } from "./hiring.route";
 
 export const v1Router = Router();
 
-v1Router.use("/events/calendar", eventCalendarRouter);
-v1Router.use("/events/docs", eventDocRouter);
-v1Router.use("/events/attendance", eventParticipantRouter);
-v1Router.use("/events/socials", eventPostRouter);
+v1Router.use("/event-calendar", eventCalendarRouter);
+v1Router.use("/event-docs", eventDocRouter);
+v1Router.use("/event-participants", eventParticipantRouter);
+v1Router.use("/event-posts", eventPostRouter);
 v1Router.use("/events", eventRouter);
 v1Router.use("/teams", teamRouter);
-v1Router.use("/teams/member", teamMemberRouter);
+v1Router.use("/team-members", teamMemberRouter);
 v1Router.use("/users", userRouter);
 v1Router.use("/hiring", hiringRouter);

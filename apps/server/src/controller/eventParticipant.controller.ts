@@ -25,9 +25,10 @@ class eventParticipantController {
         },
       });
       if (!dbEvent) throw new Error("No Event Found");
-      const existingUser = await prisma.eventParticipant.findUnique({
+      const existingUser = await prisma.eventParticipant.findFirst({
         where: {
-          id: data.userId,
+          userId: data.userId,
+          eventId: data.eventId,
         },
       });
       if (existingUser) throw new Error("Already Registered");
@@ -68,7 +69,7 @@ class eventParticipantController {
 
       const participatedEvents = await prisma.eventParticipant.findMany({
         where: {
-          id: id,
+          userId: id,
         },
       });
 
@@ -147,9 +148,10 @@ class eventParticipantController {
         },
       });
       if (!dbEvent) throw new Error("No Event Found");
-      const existingUser = await prisma.eventParticipant.findUnique({
+      const existingUser = await prisma.eventParticipant.findFirst({
         where: {
-          id: data.userId,
+          userId: data.userId,
+          eventId: data.eventId,
         },
       });
       if (!existingUser) throw new Error("User Not Registered");
@@ -158,7 +160,7 @@ class eventParticipantController {
           isPresent: "PRESENT",
         },
         where: {
-          id: data.userId,
+          id: existingUser.id,
         },
       });
       if (!markedAttendence) throw new Error("Couldn't mark attendence");
@@ -190,9 +192,10 @@ class eventParticipantController {
         },
       });
       if (!dbEvent) throw new Error("No Event Found");
-      const existingUser = await prisma.eventParticipant.findUnique({
+      const existingUser = await prisma.eventParticipant.findFirst({
         where: {
-          id: data.userId,
+          userId: data.userId,
+          eventId: data.eventId,
         },
       });
       if (existingUser) throw new Error("Already Registered");

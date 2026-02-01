@@ -31,5 +31,14 @@ userRouter.get("/is-authenticated", verifyJWT, (req, res) => {
 userRouter.post("/signup", userController.handleEmailSignup);
 userRouter.post("/login", userController.handleEmailLogin);
 userRouter.post("/update", verifyJWT, userController.updateUserDetails); //incomplete in user.controller
+userRouter.post("/signup", (req, res) => 
+  userController.handleEmailSignup(req, res),
+);
+userRouter.post("/login", (req, res) => 
+  userController.handleEmailLogin(req, res),
+);
+userRouter.post("/update", (req, res) => 
+  userController.updateUserDetails(req, res),
+);
 
 export default userRouter;

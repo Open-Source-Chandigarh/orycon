@@ -3,11 +3,9 @@ services:
   mongodb:
     container_name: mongodb
     image: mongo:latest
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=secret
     volumes:
       - mongodb_data:/data/db
 
@@ -27,7 +25,7 @@ services:
       - GITHUB_CALLBACK_URL=http://localhost:8000/oauth/redirect/github
       - GITHUB_OAUTH_CLIENTID=your_client_id
       - GITHUB_OAUTH_SECRET=your_client_secret
-      - DATABASE_URL=mongodb://admin:secret@mongodb:27017/osc-internal?authSource=admin
+      - DATABASE_URL=mongodb://mongodb:27017/osc-internal?replicaSet=rs0
     depends_on:
       - mongodb
 
