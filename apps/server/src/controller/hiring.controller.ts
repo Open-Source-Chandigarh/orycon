@@ -107,25 +107,26 @@ class HiringController {
 
  async updateApplicantStatus(req: Request, res: Response) {
   try {
-    const id = req.params.id as string;
-    const status = req.body.status as string;
+    const applicantId = req.params.id as string;
 
-    if (!id) {
-      return res.status(400).json({ 
-        message: "id is required" 
-      });
+    if (!applicantId) {
+      return res.status(400).json({ message: "Applicant id required" });
     }
+    const { status } = req.body;
 
-    if (!["Selected", "Maybe", "Rejected"].includes(status)) {
+    if (!["PENDING", "SELECTED", "MAYBE", "REJECTED"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
 
     const updated = await prisma.eventParticipant.update({
-      where: { id },
+      where: { id: applicantId },
       data: { status },
     });
 
-    return res.json(updated);
+    return res.json({
+      message: "Applicant status updated",
+      data: updated,
+    });
   } catch (error: any) {
     return res.status(400).json({ message: error.message });
   }
@@ -133,20 +134,44 @@ class HiringController {
 
   async updateApplicantTeam(req: Request, res: Response) {
   try {
-    const userId = req.params.id as string;
-    const teamId = req.body.teamId as string;
+    const applicantId = req.params.id as string;
 
-    if (!userId || !teamId) {
-      return res.status(400).json({ 
-        message: "userId and teamId required" 
-      });
+    if (!applicantId) {
+      return res.status(400).json({ message: "Applicant id required" });
     }
 
-    const teamMember = await prisma.teamMember.create({
-      data: { userId, teamId },
+    const { teamId } = req.body;
+
+    if (!teamId) {
+      return res.status(400).json({ message: "teamId required" });
+    }
+
+    const applicant = await prisma.eventParticipant.findUnique({
+      where: { id: applicantId },
     });
 
-    return res.json(teamMember);
+    if (!applicant) {
+      return res.status(404).json({ message: "Applicant not found" });
+    }
+
+    // adding user to team
+    const teamMember = await prisma.teamMember.create({
+      data: {
+        userId: applicant.userId,
+        teamId,
+      },
+    });
+
+    // updating applicant record
+    await prisma.eventParticipant.update({
+      where: { id: applicantId },
+      data: { team: teamId },
+    });
+
+    return res.json({
+      message: "Applicant assigned to team",
+      data: teamMember,
+    });
   } catch (error: any) {
     return res.status(400).json({ message: error.message });
   }
@@ -154,21 +179,22 @@ class HiringController {
 
   async deleteApplicant(req: Request, res: Response) {
   try {
-    const id = req.params.id as string;
-
-    if (!id) {
-      return res.status(400).json({ message: "id required" });
+    const applicantId = req.params.id as string;
+    
+    if (!applicantId) {
+      return res.status(400).json({ message: "Applicant id required" });
     }
 
     await prisma.eventParticipant.delete({
-      where: { id },
+      where: { id: applicantId },
     });
 
-    return res.status(204).send();
+    return res.status(200).json({
+      message: "Applicant deleted successfully",
+    });
   } catch (error: any) {
     return res.status(400).json({ message: error.message });
   }
-}
-}
+}}
 
 export default new HiringController();
