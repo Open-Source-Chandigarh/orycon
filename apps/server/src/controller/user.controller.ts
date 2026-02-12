@@ -19,7 +19,7 @@ class userController {
    * The function checks for existing user and if not add them into our database
    * along with the email sending workflow
    */
-  async handleEmailSignup(req: Request, res: Response) {
+  handleEmailSignup =  async (req: Request, res: Response) => {
     try {
       const { name, rollNumber, email, password } = req.body;
 
@@ -77,7 +77,7 @@ class userController {
   /**
    * The function checks for existing user and returns the JWT if valid
    */
-  async handleEmailLogin(req: Request, res: Response) {
+  handleEmailLogin = async (req: Request, res: Response) => {
     try {
       const { rollNumber, email, password } = req.body;
       if (!rollNumber) throw new Error("missing data rollNumber");

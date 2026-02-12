@@ -1,19 +1,16 @@
 {
   "name": "@osc/prisma",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
   "exports": {
     ".": "./src/index.ts"
   },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "dependencies": {
-    "@prisma/client": "^6.16.2",
-    "prisma":"^6.19"
+    "@prisma/client": "6.7.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prisma": "^6.7.0",
+    "typescript": "^5"
   }
 }

@@ -120,7 +120,11 @@ model eventParticipant {
   isPresent Attendance
   entryType EntryType
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  role       String
+  team       String?
+  motivation String
+  status     String    @default("PENDING")
 }
 
 model eventCalendar {
