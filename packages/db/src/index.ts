@@ -1,6 +1,9 @@
-import pkg from "@prisma/client";
-const prismaClient = pkg.PrismaClient;
+import { PrismaClient } from "@prisma/client";
+let prisma: PrismaClient;
 
-const prisma = new prismaClient();
+if (!(globalThis as any).prisma) {
+  (globalThis as any).prisma = new PrismaClient();
+}
+prisma = (globalThis as any).prisma;
 
 export default prisma;

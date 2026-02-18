@@ -17,14 +17,17 @@
     "@types/hpp": "^0.2.6",
     "@types/morgan": "^1.9.10",
     "@types/passport": "^1.0.17",
-    "@types/passport-github2": "^1.2.9"
+    "@types/passport-github2": "^1.2.9",
+    "prisma": "^7.2.0"
   },
   "dependencies": {
     "@huggingface/inference": "^4.11.1",
     "@osc/prisma": "*",
+    "@prisma/client": "^7.2.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
     "cloudinary": "^2.7.0",
