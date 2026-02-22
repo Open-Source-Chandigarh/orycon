@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env.example" });
+import { ReminderExecutorService } from "./services/reminder-executor.service";
 
 import express, {
   type NextFunction,
@@ -19,6 +20,7 @@ import morgan from "morgan";
 import { v1Router } from "./routes/v1";
 
 const app: Express = express();
+ReminderExecutorService.start();
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
   limit: 200,
