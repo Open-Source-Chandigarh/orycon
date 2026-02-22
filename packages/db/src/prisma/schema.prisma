@@ -43,9 +43,19 @@ enum Socials {
   COMMUDLE
 }
 
-enum eventCategory{
+enum eventCategory {
   MEMBER_ONLY
   PUBLIC
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+  REJECTED
 }
 
 model user {
@@ -60,6 +70,8 @@ model user {
   teamMember       teamMember[]
   event            event[]
   eventParticipant eventParticipant[]
+  createdPosts     eventPost[]        @relation("PostCreator")
+  approvedPosts    eventPost[]        @relation("PostApprover")
 }
 
 model team {
@@ -108,20 +120,24 @@ model eventParticipant {
   isPresent Attendance
   entryType EntryType
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  role       String
+  team       String?
+  motivation String
+  status     String    @default("PENDING")
 }
 
 model eventCalendar {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   eventDate   DateTime
   title       String
   description String
-  eventId     String   @db.ObjectId
-  event       event    @relation(fields: [eventId], references: [id])
+  eventId     String        @db.ObjectId
+  event       event         @relation(fields: [eventId], references: [id])
   eventType   eventCategory
-  marked      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  marked      Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @default(now()) @updatedAt
 }
 
 model eventDocumentation {
@@ -144,6 +160,35 @@ model eventPost {
   postScheduleDate DateTime
   eventId          String   @db.ObjectId
   event            event    @relation(fields: [eventId], references: [id])
+
+  // LinkedIn Integration Fields
+  status         PostStatus @default(DRAFT)
+  caption        String?
+  imageUrl       String?
+  linkedInPostId String?
+  organizationId String?
+
+  // Approval Workflow
+  createdBy       String    @db.ObjectId
+  creator         user      @relation("PostCreator", fields: [createdBy], references: [id])
+  approvedBy      String?   @db.ObjectId
+  approver        user?     @relation("PostApprover", fields: [approvedBy], references: [id])
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model LinkedInOAuthToken {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  accessToken      String
+  refreshToken     String?
+  expiresAt        DateTime
+  tokenType        String   @default("Bearer")
+  scope            String
+  organizationId   String
+  organizationName String?
   createdAt        DateTime @default(now())
-  updatedAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
 }

@@ -15,6 +15,8 @@ export type Attendance = "PRESENT" | "ABSENT";
 
 export type Socials = "INSTAGRAM" | "LINKEDIN" | "DISCORD" | "COMMUDLE";
 
+export type LinkedInPostType = "TEXT" | "IMAGE" | "VIDEO" | "ARTICLE";
+
 // Legacy alias for backward compatibility
 export type EventCategory = "MEMBER_ONLY" | "PUBLIC" | EventType;
 
@@ -112,6 +114,28 @@ export interface EventPost {
   externalRef: string;
   postScheduleDate: Date;
   eventId: string;
+}
+
+// LINKEDIN INTERFACES
+
+export interface LinkedInAccount {
+  id: string;
+  userId: string;
+  linkedinUserId: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// LINKEDIN POST METRICS INTERFACE
+export interface LinkedInPostMetrics {
+  likesCount: number;
+  commentsCount: number;
+  sharesCount: number;
+  viewsCount?: number;
+  postUrn: string;
 }
 
 // RESPONSE INTERFACES (for API responses)
