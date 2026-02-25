@@ -1,14 +1,30 @@
+import { ReminderService } from "./reminder.services";
+import type { Reminder } from "../utils/types";
+
 export type ReminderExecutionResult = "SENT" | "FAILED" | "SKIPPED";
 
-export interface ExecutableReminder {
-  id: string;
-  triggerAt: Date;
-  type: "EMAIL" | "IN_APP";
-  sent: boolean;
-}
 export class ReminderExecutorService {
+static start() {
+    setInterval(() => {
+      this.processReminders();
+    }, 60 * 1000); // every minute
+  }
 
-static execute(reminder: ExecutableReminder): ReminderExecutionResult {
+  private static processReminders() {
+    const now = new Date();
+
+    for (const reminder of ReminderService.getAll()) {
+      if (!reminder.sent && reminder.triggerAt <= now) {
+        const result = this.execute(reminder);
+
+        if (result === "SENT") {
+          reminder.sent = true;
+        }
+      }
+    }
+  }
+
+  static execute(reminder: Reminder): ReminderExecutionResult {
   if (reminder.sent) {
     return "SKIPPED";
   }
@@ -18,7 +34,8 @@ static execute(reminder: ExecutableReminder): ReminderExecutionResult {
   }
 
   try {
-    //  integrate notification delivery (email / in-app)
+    //  integrate notification delivery (in-app)
+    console.log(`Reminder SENT for schedule ${reminder.scheduleId}`);
     return "SENT";
   } catch {
     return "FAILED";

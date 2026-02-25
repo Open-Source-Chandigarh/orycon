@@ -7,7 +7,7 @@ import { eventPostRouter } from "./eventPost.route";
 import { teamRouter } from "./team.route";
 import { teamMemberRouter } from "./teamMember.route";
 import { userRouter } from "./user.route";
-import linkedinRoutes from "./linkedin.routes"; 
+import schedulerRoutes from "../scheduler.routes";
 
 export const v1Router = Router();
 
@@ -19,4 +19,4 @@ v1Router.use("/events", eventRouter);
 v1Router.use("/teams", teamRouter);
 v1Router.use("/team-members", teamMemberRouter);
 v1Router.use("/users", userRouter);
-v1Router.use("/linkedin", linkedinRoutes);
+v1Router.use("/schedules", schedulerRoutes);
