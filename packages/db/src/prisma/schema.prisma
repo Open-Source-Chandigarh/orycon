@@ -175,6 +175,7 @@ model eventPost {
   approver        user?     @relation("PostApprover", fields: [approvedBy], references: [id])
   approvedAt      DateTime?
   rejectionReason String?
+  schedules       postSchedule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -191,4 +192,32 @@ model LinkedInOAuthToken {
   organizationName String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @default(now()) @updatedAt
+}
+
+model postSchedule {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId      String   @db.ObjectId
+  post        eventPost @relation(fields: [postId], references: [id])
+
+  scheduledAt DateTime
+  timezone    String
+  status      String
+
+  reminders   reminder[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+}
+
+model reminder {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  scheduleId  String   @db.ObjectId
+  schedule    postSchedule @relation(fields: [scheduleId], references: [id])
+
+  type        String
+  offset      String
+  triggerAt   DateTime
+  sent        Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
 }
