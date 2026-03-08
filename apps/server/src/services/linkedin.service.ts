@@ -2,24 +2,15 @@ import prisma from "@osc/prisma";
 import axios from "axios";
 import type { LinkedInAccount, LinkedInPostMetrics } from "../utils/types";
 
-const LINKEDIN_AUTH_URL =
-  "https://www.linkedin.com/oauth/v2/authorization";
+const LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization";
 
-const LINKEDIN_TOKEN_URL =
-  "https://www.linkedin.com/oauth/v2/accessToken";
+const LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken";
 
-const LINKEDIN_PROFILE_URL =
-  "https://api.linkedin.com/v2/userinfo";
+const LINKEDIN_PROFILE_URL = "https://api.linkedin.com/v2/userinfo";
 
-const LINKEDIN_POSTS_URL =
-  "https://api.linkedin.com/v2/ugcPosts";
+const LINKEDIN_POSTS_URL = "https://api.linkedin.com/v2/ugcPosts";
 
-const LINKEDIN_SCOPES = [
-  "openid",
-  "profile",
-  "email"
-];
-
+const LINKEDIN_SCOPES = ["openid", "profile", "email"];
 
 type PostMetrics = {
   likesCount: number;
@@ -29,7 +20,6 @@ type PostMetrics = {
 };
 
 export class LinkedInService {
-
   // Generate OAuth URL
   static getAuthorizationUrl(): string {
     const params = new URLSearchParams({
@@ -45,7 +35,7 @@ export class LinkedInService {
   // Handle OAuth callback
   static async handleOAuthCallback(
     code: string,
-    userId: string
+    userId: string,
   ): Promise<LinkedInAccount> {
     try {
       const tokenResponse = await axios.post(
@@ -61,27 +51,24 @@ export class LinkedInService {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
-        }
+        },
       );
 
       const accessToken = tokenResponse.data.access_token;
       const refreshToken = tokenResponse.data.refresh_token ?? null;
       const expiresIn = tokenResponse.data.expires_in;
 
-    // Fetch LinkedIn profile ID
-    const profileResponse = await axios.get(
-      LINKEDIN_PROFILE_URL,
-      {
+      // Fetch LinkedIn profile ID
+      const profileResponse = await axios.get(LINKEDIN_PROFILE_URL, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "X-Restli-Protocol-Version": "2.0.0",
-          "LinkedIn-Version": "202601", 
-    },
-  }
-);
-    
+          "LinkedIn-Version": "202601",
+        },
+      });
+
       const linkedinUserId =
-  profileResponse.data.sub || profileResponse.data.id;
+        profileResponse.data.sub || profileResponse.data.id;
       const savedAccount = await prisma.linkedInOAuthToken.create({
         data: {
           accessToken,
@@ -90,45 +77,42 @@ export class LinkedInService {
           expiresAt: new Date(Date.now() + expiresIn * 1000),
           scope: LINKEDIN_SCOPES.join(" "),
           organizationId: linkedinUserId,
-  },
-});
+        },
+      });
 
-return {
-  id: savedAccount.id,
-  userId,
-  linkedinUserId,
-  accessToken,
-  refreshToken,
-  expiresAt: savedAccount.expiresAt,
-  createdAt: savedAccount.createdAt,
-  updatedAt: savedAccount.updatedAt,
-};
-
-} catch (error: any) {
-  console.error(
-    "LinkedIn OAuth Error:",
-    error.response?.data || error.message
-  );
-  throw error;
-}
-
-} 
+      return {
+        id: savedAccount.id,
+        userId,
+        linkedinUserId,
+        accessToken,
+        refreshToken,
+        expiresAt: savedAccount.expiresAt,
+        createdAt: savedAccount.createdAt,
+        updatedAt: savedAccount.updatedAt,
+      };
+    } catch (error: any) {
+      console.error(
+        "LinkedIn OAuth Error:",
+        error.response?.data || error.message,
+      );
+      throw error;
+    }
+  }
   // Fetch all user posts
   static async fetchUserPosts(
     accessToken: string,
-    linkedinUserId: string
+    linkedinUserId: string,
   ): Promise<LinkedInPostMetrics[]> {
-
     try {
       const postsResponse = await axios.get(
         `${LINKEDIN_POSTS_URL}?q=authors&authors=List(urn:li:person:${linkedinUserId})`,
         {
-           headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "X-Restli-Protocol-Version": "2.0.0",
-      "LinkedIn-Version": "202601",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "X-Restli-Protocol-Version": "2.0.0",
+            "LinkedIn-Version": "202601",
           },
-        }
+        },
       );
 
       const posts = postsResponse.data.elements || [];
@@ -136,13 +120,9 @@ return {
       const enrichedPosts: LinkedInPostMetrics[] = [];
 
       for (const post of posts) {
-
         const postId = post.id as string;
 
-        const metrics = await this.fetchPostMetrics(
-          accessToken,
-          postId
-        );
+        const metrics = await this.fetchPostMetrics(accessToken, postId);
 
         enrichedPosts.push({
           postUrn: postId,
@@ -154,9 +134,11 @@ return {
       }
 
       return enrichedPosts;
-
     } catch (error: any) {
-      console.error("Fetch Posts Error:", error.response?.data || error.message);
+      console.error(
+        "Fetch Posts Error:",
+        error.response?.data || error.message,
+      );
       throw error;
     }
   }
@@ -164,17 +146,16 @@ return {
   // Fetch metrics for single post
   static async fetchPostMetrics(
     accessToken: string,
-    postUrn: string
+    postUrn: string,
   ): Promise<PostMetrics> {
-
     const url = `https://api.linkedin.com/v2/socialActions/${encodeURIComponent(postUrn)}`;
 
     const response = await axios.get(url, {
       headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "X-Restli-Protocol-Version": "2.0.0",
-      "LinkedIn-Version": "202601", 
-    },
+        Authorization: `Bearer ${accessToken}`,
+        "X-Restli-Protocol-Version": "2.0.0",
+        "LinkedIn-Version": "202601",
+      },
     });
 
     const data = response.data;
@@ -192,7 +173,7 @@ return {
     likes: number,
     comments: number,
     shares: number,
-    views?: number
+    views?: number,
   ): number {
     if (!views || views === 0) return 0;
     return (likes + comments + shares) / views;
@@ -200,7 +181,6 @@ return {
 
   // Build analytics overview
   static buildAnalyticsOverview(posts: LinkedInPostMetrics[]) {
-
     const totalPosts = posts.length;
 
     const totals = posts.reduce(
@@ -211,7 +191,7 @@ return {
         acc.views += post.viewsCount ?? 0;
         return acc;
       },
-      { likes: 0, comments: 0, shares: 0, views: 0 }
+      { likes: 0, comments: 0, shares: 0, views: 0 },
     );
 
     const averageEngagementRate =
@@ -231,21 +211,15 @@ return {
 
   // Get top performing post
   static getTopPerformingPost(
-    posts: LinkedInPostMetrics[]
+    posts: LinkedInPostMetrics[],
   ): LinkedInPostMetrics | null {
-
     if (!posts.length) return null;
 
     return posts.reduce((best, current) => {
       const currentScore =
-        current.likesCount +
-        current.commentsCount +
-        current.sharesCount;
+        current.likesCount + current.commentsCount + current.sharesCount;
 
-      const bestScore =
-        best.likesCount +
-        best.commentsCount +
-        best.sharesCount;
+      const bestScore = best.likesCount + best.commentsCount + best.sharesCount;
 
       return currentScore > bestScore ? current : best;
     });
