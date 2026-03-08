@@ -1,27 +1,32 @@
-export type ReminderExecutionResult = "SENT" | "FAILED" | "SKIPPED";
+import prisma from  "@osc/prisma";
+import type { Reminder } from "../utils/types";
 
-export interface ExecutableReminder {
-  id: string;
-  triggerAt: Date;
-  type: "EMAIL" | "IN_APP";
-  sent: boolean;
-}
 export class ReminderExecutorService {
 
-static execute(reminder: ExecutableReminder): ReminderExecutionResult {
-  if (reminder.sent) {
-    return "SKIPPED";
-  }
+  static async processPendingReminders() {
+  try{
+    const now = new Date();
 
-  if (reminder.triggerAt.getTime() > Date.now()) {
-    return "SKIPPED";
-  }
+    const reminders = await prisma.reminder.findMany({
+      where: {
+        sent: false,
+        triggerAt: {
+          lte: now
+        }
+      }
+    });
 
-  try {
-    //  integrate notification delivery (email / in-app)
-    return "SENT";
-  } catch {
-    return "FAILED";
-  }
+    for (const reminder of reminders) {
+        console.log(`Reminder SENT for schedule ${reminder.scheduleId}`);
+
+        await prisma.reminder.update({
+          where: { id: reminder.id },
+          data: { sent: true }
+        });
+      }
+    } catch (error) {
+        console.error("Reminder failed:", error);
+      }
+    }
 }
-}
+  

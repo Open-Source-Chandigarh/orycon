@@ -193,15 +193,3 @@ model LinkedInOAuthToken {
   updatedAt        DateTime @default(now()) @updatedAt
 }
 
-model LinkedInOAuthToken {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  accessToken      String
-  refreshToken     String?
-  expiresAt        DateTime
-  tokenType        String   @default("Bearer")
-  scope            String
-  organizationId   String
-  organizationName String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @default(now()) @updatedAt
-}

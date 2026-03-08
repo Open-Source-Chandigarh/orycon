@@ -1,60 +1,85 @@
-export type ScheduleStatus = "DRAFT" | "SCHEDULED" | "CANCELLED";
-export interface PostSchedule {
-  id: string;
-  postId: string;
-  scheduledAt: Date;
-  timezone: string;
-  status: ScheduleStatus;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import prisma from "@osc/prisma";
+import { ReminderService } from "./reminder.services";
 export class SchedulerService {
-static createSchedule(
-  postId: string,
-  scheduledAt: Date,
-  timezone: string
-): PostSchedule {
-  if (scheduledAt.getTime() <= Date.now()) {
-    throw new Error("Scheduled time must be in the future");
+ 
+
+  static async createSchedule(
+    postId: string,
+    scheduledAt: Date,
+    timezone: string,
+  ) {
+
+    if (scheduledAt.getTime() <= Date.now()) {
+      throw new Error("Scheduled time must be in the future");
+    }
+
+    const schedule = await prisma.postSchedule.create({
+      data: {
+        postId,
+        scheduledAt,
+        timezone,
+        status: "SCHEDULED",
+      },
+    });
+
+    // Auto create reminder
+    await ReminderService.createReminder(
+      schedule.id,
+      scheduledAt,
+      "1_HOUR",
+      "EMAIL",
+    );
+
+    return schedule;
   }
 
-  return {
-    id: "",
-    postId,
-    scheduledAt,
-    timezone,
-    status: "SCHEDULED",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-}
-static updateSchedule(
-  schedule: PostSchedule,
-  newScheduledAt: Date
-): PostSchedule {
-  if (schedule.status !== "SCHEDULED") {
-    throw new Error("Only scheduled posts can be updated");
+  static async updateSchedule(
+    scheduleId: string,
+    newScheduledAt: Date,
+  ){
+
+    if (newScheduledAt.getTime() <= Date.now()) {
+      throw new Error("Updated time must be in the future");
+    }
+
+   return prisma.postSchedule.update({
+      where: { id: scheduleId },
+      data: {
+        scheduledAt: newScheduledAt,
+        updatedAt: new Date(),
+      },
+    });
   }
 
-  if (newScheduledAt.getTime() <= Date.now()) {
-    throw new Error("Updated time must be in the future");
+
+  static async cancelSchedule(scheduleId: string) {
+    return prisma.postSchedule.update({
+      where: { id: scheduleId },
+      data: {
+        status: "CANCELLED",
+        updatedAt: new Date(),
+      },
+    });
   }
 
-  return {
-    ...schedule,
-    scheduledAt: newScheduledAt,
-    updatedAt: new Date(),
-  };
-}
-static cancelSchedule(schedule: PostSchedule): PostSchedule {
-  if (schedule.status === "CANCELLED") {
-    throw new Error("Schedule is already cancelled");
+  static async getSchedulesByDateRange(start: Date, end: Date){
+  return prisma.postSchedule.findMany({
+      where: {
+        status: { not: "CANCELLED" },
+        scheduledAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    });
   }
 
-  return {
-    ...schedule,
-    status: "CANCELLED",
-    updatedAt: new Date(),
-  };
-}
+  static getSchedulesByPost(postId: string) {
+  return prisma.postSchedule.findMany({
+      where: {
+        postId,
+        status: { not: "CANCELLED" },
+      },
+    });
+  }
 }

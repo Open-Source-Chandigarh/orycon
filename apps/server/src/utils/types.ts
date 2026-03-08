@@ -191,3 +191,34 @@ export interface EventPostResponse extends EventPost {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// SCHEDULER DOMAIN TYPES
+
+export type ScheduleStatus = "DRAFT" | "SCHEDULED" | "CANCELLED";
+export interface PostSchedule {
+  id: string;
+  postId: string;
+  scheduledAt: Date;
+  timezone: string;
+  status: ScheduleStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type ReminderType = "EMAIL" | "IN_APP";
+export type ReminderOffset =
+  | "15_MIN"
+  | "30_MIN"
+  | "1_HOUR"
+  | "1_DAY";
+
+export interface Reminder {
+  id: string;
+  scheduleId: string;
+  type: ReminderType;
+  offset: ReminderOffset;
+  triggerAt: Date;
+  sent: boolean; 
+  createdAt: Date;
+}
+
