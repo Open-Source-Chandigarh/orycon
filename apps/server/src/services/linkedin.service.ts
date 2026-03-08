@@ -1,3 +1,4 @@
+import prisma from "@osc/prisma";
 import axios from "axios";
 import type { LinkedInAccount, LinkedInPostMetrics } from "../utils/types";
 
@@ -64,41 +65,54 @@ export class LinkedInService {
       );
 
       const accessToken = tokenResponse.data.access_token;
-      const refreshToken = tokenResponse.data.refresh_token;
+      const refreshToken = tokenResponse.data.refresh_token ?? null;
       const expiresIn = tokenResponse.data.expires_in;
 
-      // Fetch LinkedIn profile ID
-      const profileResponse = await axios.get(
-  LINKEDIN_PROFILE_URL,
-  {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "X-Restli-Protocol-Version": "2.0.0",
-      "LinkedIn-Version": "202601", 
+    // Fetch LinkedIn profile ID
+    const profileResponse = await axios.get(
+      LINKEDIN_PROFILE_URL,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "X-Restli-Protocol-Version": "2.0.0",
+          "LinkedIn-Version": "202601", 
     },
   }
 );
     
-        const linkedinUserId = profileResponse.data.id;
-        return {
-        id: "",
-        userId,
-        linkedinUserId,
-        accessToken,
-        refreshToken,
-        expiresAt: expiresIn
-          ? new Date(Date.now() + expiresIn * 1000)
-          : undefined,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const linkedinUserId =
+  profileResponse.data.sub || profileResponse.data.id;
+      const savedAccount = await prisma.linkedInOAuthToken.create({
+        data: {
+          accessToken,
+          refreshToken,
+          tokenType: "Bearer",
+          expiresAt: new Date(Date.now() + expiresIn * 1000),
+          scope: LINKEDIN_SCOPES.join(" "),
+          organizationId: linkedinUserId,
+  },
+});
 
-    } catch (error: any) {
-      console.error("LinkedIn OAuth Error:", error.response?.data || error.message);
-      throw error;
-    }
-  }
+return {
+  id: savedAccount.id,
+  userId,
+  linkedinUserId,
+  accessToken,
+  refreshToken,
+  expiresAt: savedAccount.expiresAt,
+  createdAt: savedAccount.createdAt,
+  updatedAt: savedAccount.updatedAt,
+};
 
+} catch (error: any) {
+  console.error(
+    "LinkedIn OAuth Error:",
+    error.response?.data || error.message
+  );
+  throw error;
+}
+
+} 
   // Fetch all user posts
   static async fetchUserPosts(
     accessToken: string,

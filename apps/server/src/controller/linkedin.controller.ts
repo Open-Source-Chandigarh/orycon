@@ -1,3 +1,4 @@
+import prisma from "@osc/prisma";
 import type { Request, Response } from "express";
 import { LinkedInService } from "../services/linkedin.service";
 
@@ -41,7 +42,14 @@ export class LinkedInController {
 
   static async getAnalytics(req: Request, res: Response) {
     try {
-      const { accessToken, linkedinUserId } = req.body;
+       const token = await prisma.linkedInOAuthToken.findFirst();
+
+     if (!token) {
+     return res.status(400).json({ error: "LinkedIn not connected" });
+}
+
+const accessToken = token.accessToken;
+const linkedinUserId = token.organizationId;
 
       if (!accessToken || !linkedinUserId) {
         return res.status(400).json({ error: "Missing credentials" });
