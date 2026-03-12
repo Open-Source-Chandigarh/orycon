@@ -1,8 +1,8 @@
+import prisma from "@osc/prisma";
 import type { Request, Response } from "express";
 import { LinkedInService } from "../services/linkedin.service";
 
 export class LinkedInController {
-
   static async getAuthorizationUrl(req: Request, res: Response) {
     const url = LinkedInService.getAuthorizationUrl();
     return res.json({ url });
@@ -18,18 +18,13 @@ export class LinkedInController {
 
       const userId = "test-user";
 
-      const account = await LinkedInService.handleOAuthCallback(
-        code,
-        userId
-      );
+      const account = await LinkedInService.handleOAuthCallback(code, userId);
 
       return res.json({
         message: "LinkedIn connected successfully",
         account,
       });
-
     } catch (error: any) {
-
       console.error("OAuth Error:", error.response?.data || error.message);
 
       return res.status(500).json({
@@ -41,7 +36,14 @@ export class LinkedInController {
 
   static async getAnalytics(req: Request, res: Response) {
     try {
-      const { accessToken, linkedinUserId } = req.body;
+      const token = await prisma.linkedInOAuthToken.findFirst();
+
+      if (!token) {
+        return res.status(400).json({ error: "LinkedIn not connected" });
+      }
+
+      const accessToken = token.accessToken;
+      const linkedinUserId = token.organizationId;
 
       if (!accessToken || !linkedinUserId) {
         return res.status(400).json({ error: "Missing credentials" });
@@ -49,23 +51,19 @@ export class LinkedInController {
 
       const posts = await LinkedInService.fetchUserPosts(
         accessToken,
-        linkedinUserId
+        linkedinUserId,
       );
 
-      const overview =
-        LinkedInService.buildAnalyticsOverview(posts);
+      const overview = LinkedInService.buildAnalyticsOverview(posts);
 
-      const topPost =
-        LinkedInService.getTopPerformingPost(posts);
+      const topPost = LinkedInService.getTopPerformingPost(posts);
 
       return res.json({
         overview,
         topPost,
         posts,
       });
-
     } catch (error: any) {
-
       console.error("Analytics Error:", error.response?.data || error.message);
 
       return res.status(500).json({
